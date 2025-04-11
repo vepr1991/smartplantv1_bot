@@ -26,9 +26,9 @@ if not FIREBASE_DB_URL:
 if not FIREBASE_CREDENTIALS_JSON:
     raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_JSON не задана")
 
-# === Инициализация Firebase напрямую из JSON (многострочный формат работает) ===
+# === Инициализация Firebase ===
 try:
-    firebase_dict = json.loads(json.loads(FIREBASE_CREDENTIALS_JSON))
+    firebase_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
     cred = credentials.Certificate(firebase_dict)
     firebase_admin.initialize_app(cred, {
         'databaseURL': FIREBASE_DB_URL
