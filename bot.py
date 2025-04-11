@@ -1,5 +1,4 @@
 import os
-import json
 from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
@@ -16,20 +15,15 @@ from firebase_admin import credentials, db
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL")
-FIREBASE_CREDENTIALS_JSON = os.getenv("FIREBASE_CREDENTIALS_JSON")
 
-# === Проверка обязательных переменных ===
 if not TOKEN:
     raise ValueError("❌ Переменная BOT_TOKEN не задана")
 if not FIREBASE_DB_URL:
     raise ValueError("❌ Переменная FIREBASE_DB_URL не задана")
-if not FIREBASE_CREDENTIALS_JSON:
-    raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_JSON не задана")
 
-# === Инициализация Firebase ===
+# === Firebase через файл с ключом ===
 try:
-    firebase_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
-    cred = credentials.Certificate(firebase_dict)
+    cred = credentials.Certificate("firebase-key.json")
     firebase_admin.initialize_app(cred, {
         'databaseURL': FIREBASE_DB_URL
     })
@@ -40,7 +34,7 @@ except Exception as e:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [["📊 Статус", "⚙ Настройки"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    await update.message.reply_text("Привет! Я бот SmartPlant 🌱", reply_markup=reply_markup)
+    await update.message.reply_text("Привет! Я бот SmartPlant 🌿", reply_markup=reply_markup)
 
 # === Команда /status ===
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -56,7 +50,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🌱 Влажность почвы: {soil}%"
     )
 
-# === Обработка текстовых кнопок ===
+# === Обработка кнопок ===
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
     if "статус" in text:
