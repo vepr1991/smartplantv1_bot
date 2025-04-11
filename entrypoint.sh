@@ -7,6 +7,4 @@ if [ -z "$FIREBASE_KEY_JSON" ]; then
 fi
 
 echo "$FIREBASE_KEY_JSON" > firebase-key.json
-echo "▶ Содержимое переменной:"
-echo "$FIREBASE_KEY_JSON"
 exec python bot.py
