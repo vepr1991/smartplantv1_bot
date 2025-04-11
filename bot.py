@@ -1,6 +1,5 @@
 import os
 import json
-import base64
 from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
@@ -13,24 +12,23 @@ from telegram.ext import (
 import firebase_admin
 from firebase_admin import credentials, db
 
-# === Загрузка переменных ===
+# === Загрузка переменных из .env ===
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL")
-FIREBASE_CREDENTIALS_B64 = os.getenv("FIREBASE_CREDENTIALS_B64")
+FIREBASE_CREDENTIALS_JSON = os.getenv("FIREBASE_CREDENTIALS_JSON")
 
 # === Проверка обязательных переменных ===
 if not TOKEN:
     raise ValueError("❌ Переменная BOT_TOKEN не задана")
 if not FIREBASE_DB_URL:
     raise ValueError("❌ Переменная FIREBASE_DB_URL не задана")
-if not FIREBASE_CREDENTIALS_B64:
-    raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_B64 не задана")
+if not FIREBASE_CREDENTIALS_JSON:
+    raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_JSON не задана")
 
-# === Инициализация Firebase из base64 ===
+# === Инициализация Firebase напрямую из JSON (многострочный формат работает) ===
 try:
-    decoded_json = base64.b64decode(FIREBASE_CREDENTIALS_B64).decode("utf-8")
-    firebase_dict = json.loads(decoded_json)
+    firebase_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
     cred = credentials.Certificate(firebase_dict)
     firebase_admin.initialize_app(cred, {
         'databaseURL': FIREBASE_DB_URL
