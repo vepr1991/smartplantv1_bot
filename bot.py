@@ -28,7 +28,7 @@ if not FIREBASE_CREDENTIALS_JSON:
 
 # === Инициализация Firebase напрямую из JSON (многострочный формат работает) ===
 try:
-    firebase_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
+    firebase_dict = json.loads(json.loads(FIREBASE_CREDENTIALS_JSON))
     cred = credentials.Certificate(firebase_dict)
     firebase_admin.initialize_app(cred, {
         'databaseURL': FIREBASE_DB_URL
