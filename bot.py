@@ -14,13 +14,13 @@ from telegram.ext import (
     filters,
 )
 
-# === Загрузка переменных окружения ===
+# === Загрузка .env ===
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL")
 FIREBASE_CREDENTIALS_JSON = os.getenv("FIREBASE_CREDENTIALS_JSON")
 
-# === Проверка обязательных переменных ===
+# === Проверка переменных ===
 if not TOKEN:
     raise ValueError("❌ Переменная BOT_TOKEN не задана")
 if not FIREBASE_DB_URL:
@@ -28,9 +28,8 @@ if not FIREBASE_DB_URL:
 if not FIREBASE_CREDENTIALS_JSON:
     raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_JSON не задана")
 
-# === Инициализация Firebase из строки JSON ===
+# === Инициализация Firebase (с декодированием \\n) ===
 try:
-    # Преобразуем строку переменной в dict
     raw_str = FIREBASE_CREDENTIALS_JSON.replace('\\n', '\n')
     firebase_dict = json.loads(raw_str)
     cred = credentials.Certificate(firebase_dict)
@@ -40,7 +39,7 @@ try:
 except Exception as e:
     raise ValueError(f"❌ Ошибка инициализации Firebase: {e}")
 
-# === /start ===
+# === Команда /start ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [["📊 Статус", "⚙ Настройки"]]
     reply_markup = ReplyKeyboardMarkup(
@@ -53,7 +52,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 
-# === /status или кнопка "Статус" ===
+# === Команда /status ===
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ref = db.reference("plants/plant_001/data")
     data = ref.get() or {}
@@ -67,7 +66,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🌱 Влажность почвы: {soil}%"
     )
 
-# === Обработка текстовых кнопок ===
+# === Обработка текста с кнопок ===
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
     if "статус" in text:
