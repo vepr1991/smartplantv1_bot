@@ -1,37 +1,36 @@
 import os
 import json
-from io import StringIO
+import base64
 from dotenv import load_dotenv
-import firebase_admin
-from firebase_admin import credentials, db
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
     MessageHandler,
-    CallbackQueryHandler,
     ContextTypes,
     filters,
 )
+import firebase_admin
+from firebase_admin import credentials, db
 
-# === Загрузка .env ===
+# === Загрузка переменных ===
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL")
-FIREBASE_CREDENTIALS_JSON = os.getenv("FIREBASE_CREDENTIALS_JSON")
+FIREBASE_CREDENTIALS_B64 = os.getenv("FIREBASE_CREDENTIALS_B64")
 
-# === Проверка переменных ===
+# === Проверка обязательных переменных ===
 if not TOKEN:
     raise ValueError("❌ Переменная BOT_TOKEN не задана")
 if not FIREBASE_DB_URL:
     raise ValueError("❌ Переменная FIREBASE_DB_URL не задана")
-if not FIREBASE_CREDENTIALS_JSON:
-    raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_JSON не задана")
+if not FIREBASE_CREDENTIALS_B64:
+    raise ValueError("❌ Переменная FIREBASE_CREDENTIALS_B64 не задана")
 
-# === Инициализация Firebase (с декодированием \\n) ===
+# === Инициализация Firebase из base64 ===
 try:
-    raw_str = FIREBASE_CREDENTIALS_JSON.replace('\\n', '\n')
-    firebase_dict = json.loads(raw_str)
+    decoded_json = base64.b64decode(FIREBASE_CREDENTIALS_B64).decode("utf-8")
+    firebase_dict = json.loads(decoded_json)
     cred = credentials.Certificate(firebase_dict)
     firebase_admin.initialize_app(cred, {
         'databaseURL': FIREBASE_DB_URL
@@ -42,15 +41,8 @@ except Exception as e:
 # === Команда /start ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [["📊 Статус", "⚙ Настройки"]]
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=False
-    )
-    await update.message.reply_text(
-        "Привет! Я бот SmartPlant 🌱\nВот, чем могу помочь:",
-        reply_markup=reply_markup
-    )
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    await update.message.reply_text("Привет! Я бот SmartPlant 🌱", reply_markup=reply_markup)
 
 # === Команда /status ===
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -66,7 +58,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🌱 Влажность почвы: {soil}%"
     )
 
-# === Обработка текста с кнопок ===
+# === Обработка текстовых кнопок ===
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
     if "статус" in text:
