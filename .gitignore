@@ -1,6 +1,20 @@
-firebase-key.json
+# 🔐 Секреты
 .env
+firebase-key.json
+
+# 🐍 Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+
+# 📦 Виртуальное окружение
 .venv/
-.idea
+env/
+ENV/
+
+# ⚙️ IDE-шные файлы
+.idea/
+.vscode/
+
+# 🗃 Системные файлы
+.DS_Store
