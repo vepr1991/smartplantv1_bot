@@ -30,7 +30,9 @@ if not FIREBASE_CREDENTIALS_JSON:
 
 # === Инициализация Firebase из строки JSON ===
 try:
-    firebase_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
+    # Преобразуем строку переменной в dict
+    raw_str = FIREBASE_CREDENTIALS_JSON.replace('\\n', '\n')
+    firebase_dict = json.loads(raw_str)
     cred = credentials.Certificate(firebase_dict)
     firebase_admin.initialize_app(cred, {
         'databaseURL': FIREBASE_DB_URL
